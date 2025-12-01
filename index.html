@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>د. محمد سعيد</title>
+
+<!-- جميل: خط عصري -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg1:#071025;         /* background gradient start */
+    --bg2:#0f1724;         /* background gradient end */
+    --accent:#39C7FF;      /* primary accent */
+    --glass: rgba(255,255,255,0.06);
+    --glass-strong: rgba(255,255,255,0.09);
+    --card-w: 980px;
+    --card-h: 620px;
+    --transition: 400ms cubic-bezier(.2,.9,.2,1);
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:"Cairo","Inter",system-ui,Arial;background:
+    radial-gradient(1200px 700px at 10% 10%, rgba(57,199,255,0.06), transparent 8%),
+    linear-gradient(135deg,var(--bg1),var(--bg2));
+    color:#e6eef8; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    overflow:auto;
+  }
+
+  /* full-screen center */
+  .wrap{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:40px 20px;
+    gap:28px;
+    position:relative;
+  }
+
+  /* Subtle particle canvas container */
+  #particles {
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+  }
+
+  /* main card (3D stage) */
+  .stage{
+    width: min(var(--card-w), 96vw);
+    height: min(var(--card-h), 90vh);
+    perspective: 1600px;
+    position:relative;
+    z-index:2;
+  }
+
+  .scene {
+    width:100%; height:100%;
+    transform-style: preserve-3d;
+    transition: transform var(--transition);
+    border-radius:22px;
+    position:relative;
+    overflow:visible;
+  }
+
+  /* Glass panel */
+  .panel {
+    position:absolute;
+    inset:0;
+    border-radius:22px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+    border:1px solid rgba(255,255,255,0.04);
+    box-shadow: 0 30px 80px rgba(2,6,23,0.7), 0 2px 8px rgba(0,0,0,0.6);
+    backdrop-filter: blur(8px) saturate(1.05);
+    overflow:hidden;
+    transform: translateZ(40px) rotateX(0.5deg);
+  }
+
+  /* left column (profile card) */
+  .left {
+    position:absolute;
+    right:32px; top:32px;
+    width:360px; height:calc(100% - 64px);
+    display:flex; flex-direction:column; gap:18px;
+    transform: translateZ(140px);
+  }
+
+  /* right column (content) */
+  .right {
+    position:absolute;
+    left:36px; top:32px;
+    right:420px; bottom:32px;
+    padding:22px 20px;
+    transform: translateZ(80px);
+    display:flex; flex-direction:column; gap:14px;
+  }
+
+  /* floating medical emblem (3D-ish) */
+  .emblem {
+    width:110px; height:110px;
+    border-radius:16px;
+    background: linear-gradient(135deg, rgba(57,199,255,0.10), rgba(0,120,200,0.06));
+    display:flex; align-items:center; justify-content:center;
+    border:1px solid rgba(57,199,255,0.18);
+    box-shadow: 0 8px 28px rgba(57,199,255,0.06), inset 0 -6px 18px rgba(0,0,0,0.15);
+    transform: translateZ(180px);
+  }
+
+  /* circular avatar with layered depth */
+  .avatar {
+    margin-inline:10px;
+    width:150px; height:150px; border-radius:50%;
+    background:linear-gradient(180deg,#0f1724,#132032);
+    display:grid; place-items:center;
+    position:relative; border:6px solid rgba(255,255,255,0.06);
+    box-shadow: 0 16px 40px rgba(2,6,23,0.7), 0 0 40px rgba(57,199,255,0.06);
+    overflow:hidden;
+  }
+
+  .avatar img{width:100%; height:100%; object-fit:cover; display:block}
+
+  .name {
+    font-weight:700; font-size:22px; text-align:center; margin-top:6px;color:#dff6ff;
+  }
+  .role {font-size:14px; opacity:0.8; text-align:center;margin-bottom:6px}
+
+  .stats {
+    display:flex; gap:10px; justify-content:center; margin-top:6px;
+  }
+  .stat { text-align:center; }
+  .stat b { display:block; font-size:18px; color:#fff }
+  .stat span { font-size:12px; opacity:0.7 }
+
+  /* action buttons */
+  .actions { display:flex; gap:10px; justify-content:center; margin-top:12px }
+  .btn {
+    padding:10px 14px; border-radius:12px; cursor:pointer; border:1px solid rgba(255,255,255,0.06);
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+    font-weight:600; color:var(--accent); transition: all 180ms ease;
+  }
+  .btn.primary {
+    background:linear-gradient(90deg,var(--accent),#2aa6e0);
+    color:#071025; box-shadow:0 10px 30px rgba(37,160,220,0.12);
+    border:none;
+  }
+  .btn:hover{ transform: translateY(-3px); }
+
+  /* right content blocks */
+  .bio {
+    background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));
+    border-radius:14px; padding:14px; border:1px solid rgba(255,255,255,0.03);
+  }
+  .title { color:var(--accent); font-weight:700; font-size:15px; margin-bottom:8px }
+
+  .skills { display:flex; gap:8px; flex-wrap:wrap }
+  .chip { padding:8px 10px; border-radius:10px; font-size:13px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.02) }
+
+  /* timeline */
+  .timeline { margin-top:8px; display:flex; flex-direction:column; gap:12px; padding-right:6px }
+  .event { display:flex; gap:12px; align-items:flex-start; }
+  .dot { width:12px; height:12px; border-radius:50%; background:var(--accent); margin-top:6px; flex:0 0 auto }
+  .ev-body { background:rgba(255,255,255,0.02); padding:10px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.02) }
+  .ev-body small { opacity:0.75; display:block; margin-bottom:6px; font-size:12px }
+
+  /* right-side narrow column: contact & utilities */
+  .side {
+    position:absolute; left:36px; top:calc(100% - 220px); width:340px; transform:translateZ(40px);
+    background:transparent;
+  }
+
+  .contact-card {
+    border-radius:12px; padding:12px; display:flex; gap:10px; align-items:center;
+    background:linear-gradient(180deg, rgba(255,255,255,0.014), rgba(255,255,255,0.01));
+    border:1px solid rgba(255,255,255,0.03);
+  }
+
+  .contact-card a { color:#e6faff; text-decoration:none; font-weight:700 }
+
+  /* top-left floating info */
+  .topbar {
+    position:absolute; left:46px; top:36px; transform:translateZ(200px); z-index:5;
+    display:flex; gap:12px; align-items:center;
+  }
+  .badge {
+    padding:8px 12px; border-radius:12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.03);
+    font-weight:700; color:#dff6ff;
+  }
+
+  /* booking modal */
+  .modal {
+    position:fixed; inset:0; display:grid; place-items:center; z-index:999;
+    background: linear-gradient(rgba(2,6,23,0.6), rgba(2,6,23,0.6)); visibility:hidden; opacity:0; transition:opacity 200ms;
+  }
+  .modal.open{ visibility:visible; opacity:1 }
+  .modal-card { width:420px; max-width:94%; border-radius:12px; padding:18px; background:linear-gradient(180deg, #071025, #081428);
+    border:1px solid rgba(255,255,255,0.04); box-shadow:0 30px 100px rgba(2,6,23,0.8) }
+  .modal-card h3 { margin:0 0 8px; font-size:20px }
+  .field { margin-bottom:10px }
+  .field input, .field textarea, .field select {
+    width:100%; padding:10px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.05); background:transparent; color:#e6eef8
+  }
+
+  /* responsive */
+  @media (max-width:980px){
+    .left{ position:relative; right:0; top:28px; width:100%; height:auto; transform:translateZ(60px) }
+    .right{ left:24px; right:24px; top:calc(50% + 160px); transform:translateZ(40px) }
+    .side{ display:none }
+    .panel{ border-radius:16px }
+  }
+
+  /* tiny helper */
+  .muted{ opacity:0.75; font-size:13px }
+  footer{ position:fixed; left:16px; bottom:12px; font-size:12px; opacity:0.6; color:#9fbddf }
+</style>
+</head>
+<body>
+
+<!-- particle canvas -->
+<canvas id="particles"></canvas>
+
+<div class="wrap">
+  <div class="stage" id="stage">
+    <div class="scene" id="scene">
+      <div class="panel"></div>
+
+      <!-- top badge -->
+      <div class="topbar">
+        <div class="badge">دكتور | طبيب أخصائي</div>
+        <div class="badge muted">عيادة خاصة • استشارات</div>
+      </div>
+
+      <!-- LEFT: Profile card -->
+      <div class="left" aria-hidden="false">
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div class="avatar" id="avatar">
+            <img src="https://i.imgur.com/Q6aZlme.png" alt="Profile photo">
+          </div>
+
+          <div style="flex:1">
+            <div class="name">د. محمد سعيد</div>
+            <div class="role">استشاري الباطنة و العناية المركزة</div>
+
+            <div class="stats" aria-hidden="true">
+              <div class="stat"><b>10+</b><span>سنوات خبرة</span></div>
+              <div class="stat"><b>15k</b><span>مريض مُتابع</span></div>
+              <div class="stat"><b>★★★★★</b><span>تقييمات</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- emblem -->
+        <div style="display:flex; justify-content:center; margin-top:6px">
+          <div class="emblem" id="emblem">
+            <!-- simple medical SVG emblem -->
+            <svg width="66" height="66" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <defs><linearGradient id="g1" x1="0" x2="1"><stop offset="0" stop-color="#7FE9FF"/><stop offset="1" stop-color="#2AB2F0"/></linearGradient></defs>
+              <rect x="2.5" y="2.5" width="19" height="19" rx="6" stroke="url(#g1)" stroke-width="0.9" opacity="0.9"/>
+              <path d="M12 7v10M7 12h10" stroke="url(#g1)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+
+        <div style="margin-top:14px">
+          <div style="display:flex; gap:10px; justify-content:center" class="actions">
+            <button class="btn primary" id="bookBtn">حجز موعد</button>
+            <a class="btn" id="whatsappBtn" href="https://wa.me/20100?text=مرحبًا%20دكتور%20محمد" target="_blank" rel="noopener">واتساب</a>
+          </div>
+
+          <div style="display:flex; gap:8px; justify-content:center; margin-top:10px">
+            <button class="btn" id="downloadVCard">تنزيل vCard</button>
+            <button class="btn" id="printBtn">طباعة</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: content -->
+      <div class="right">
+        <div class="bio">
+          <div class="title">الملخص المهني</div>
+          <div class="muted">طبيب استشاري يركز على الرعاية الشاملة، إدارة الحالات الحرجة، وتقديم خطط علاج مبنية على الدليل الطبي.</div>
+          <div style="margin-top:12px" class="skills">
+            <div class="chip">الباطنة العامة</div>
+            <div class="chip">العناية المركزة</div>
+            <div class="chip">تنظير داخلي</div>
+            <div class="chip">متابعة مزمنة</div>
+            <div class="chip">إدارة الألم</div>
+          </div>
+        </div>
+
+        <div class="bio" style="margin-top:10px">
+          <div class="title">الخبرات والتعليم</div>
+          <div class="timeline">
+            <div class="event"><div class="dot"></div><div class="ev-body"><small>2020 — الآن</small><strong>استشاري باطنة</strong><div class="muted">مستشفى السلام الدولي</div></div></div>
+            <div class="event"><div class="dot"></div><div class="ev-body"><small>2016 — 2020</small><strong>أخصائي عناية مركزة</strong><div class="muted">مركز الرعاية المركزة التخصصي</div></div></div>
+            <div class="event"><div class="dot"></div><div class="ev-body"><small>2010 — 2016</small><strong>زميل باطنة</strong><div class="muted">جامعة القاهرة — كلية الطب</div></div></div>
+          </div>
+        </div>
+
+        <div class="bio" style="margin-top:10px">
+          <div class="title">الخدمات</div>
+          <div class="skills" style="margin-top:8px">
+            <div class="chip">استشارات قابلة للحجز</div>
+            <div class="chip">متابعة حالات مزمنة</div>
+            <div class="chip">تقييمات ما قبل الجراحة</div>
+            <div class="chip">خطة علاج شخصية</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- side contact -->
+      <div class="side">
+        <div class="contact-card">
+          <div style="flex:1">
+            <div style="font-weight:800">العيادة: مركز الشفاء الطبي</div>
+            <div class="muted">العنوان: شارع النيل 123، القاهرة</div>
+            <div class="muted" style="margin-top:8px">مواعيد العمل: السبت–الخميس 10ص–8م</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<footer>تصميم احترافي ثلاثي الأبعاد • صفحة بيانات الطبيب</footer>
+
+<!-- Booking modal -->
+<div class="modal" id="modal">
+  <div class="modal-card">
+    <h3>حجز موعد — د. محمد سعيد</h3>
+    <div style="margin-bottom:8px" class="muted">املأ البيانات أدناه، سيتم إرسال التفاصيل إلى رقم الواتساب.</div>
+    <div class="field"><input id="inputName" placeholder="الاسم الكامل"></div>
+    <div class="field"><input id="inputPhone" placeholder="رقم الهاتف"></div>
+    <div class="field"><select id="inputService"><option>استشارة</option><option>متابعة</option><option>جلسة طبية</option></select></div>
+    <div class="field"><textarea id="inputNote" rows="3" placeholder="ملاحظات (اختياري)"></textarea></div>
+    <div style="display:flex; gap:8px; justify-content:flex-end">
+      <button class="btn" id="modalClose">إلغاء</button>
+      <button class="btn primary" id="modalSend">إرسال عبر واتساب</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* --------------------------
+   Part 1: particles (lightweight)
+   -------------------------- */
+(function(){
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  let w = canvas.width = innerWidth;
+  let h = canvas.height = innerHeight;
+  const particles = [];
+  const COUNT = Math.max(24, Math.floor((w*h)/80000));
+
+  function rand(min,max){ return Math.random()*(max-min)+min; }
+  function resize(){ w=canvas.width=innerWidth; h=canvas.height=innerHeight; init(); }
+  addEventListener('resize', resize);
+
+  function init(){
+    particles.length=0;
+    for(let i=0;i<COUNT;i++){
+      particles.push({
+        x: rand(0,w), y: rand(0,h),
+        r: rand(0.8,2.6),
+        vx: rand(-0.2,0.2), vy: rand(-0.05,0.05),
+        alpha: rand(0.05,0.22)
+      });
+    }
+  }
+  function frame(){
+    ctx.clearRect(0,0,w,h);
+    for(const p of particles){
+      p.x += p.vx; p.y += p.vy;
+      if(p.x< -20) p.x=w+20; if(p.x> w+20) p.x=-20;
+      if(p.y< -20) p.y=h+20; if(p.y> h+20) p.y=-20;
+      ctx.beginPath();
+      ctx.fillStyle = 'rgba(57,199,255,'+p.alpha+')';
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fill();
+    }
+    requestAnimationFrame(frame);
+  }
+
+  init(); frame();
+})();
+
+/* --------------------------
+   Part 2: 3D parallax stage
+   -------------------------- */
+(function(){
+  const stage = document.getElementById('stage');
+  const scene = document.getElementById('scene');
+  let ww = innerWidth, wh = innerHeight;
+  let tx=0, ty=0; // target rotation
+  function onMove(e){
+    const x = e.clientX || (e.touches && e.touches[0].clientX) || ww/2;
+    const y = e.clientY || (e.touches && e.touches[0].clientY) || wh/2;
+    const cx = ww/2, cy = wh/2;
+    const dx = (x - cx) / cx; // -1..1
+    const dy = (y - cy) / cy;
+    tx = dy * 8; // tilt X
+    ty = -dx * 12; // rotate Y
+  }
+  addEventListener('mousemove', onMove);
+  addEventListener('touchmove', onMove, {passive:true});
+  addEventListener('resize', ()=>{ ww=innerWidth; wh=innerHeight; });
+
+  (function animate(){
+    // smooth lerp
+    const cur = scene.style.transform || '';
+    // use small smoothing
+    scene.style.transform = `rotateX(${tx.toFixed(2)}deg) rotateY(${ty.toFixed(2)}deg)`;
+    requestAnimationFrame(animate);
+  })();
+})();
+
+/* --------------------------
+   Part 3: emblem subtle rotate + hover
+   -------------------------- */
+(function(){
+  const emblem = document.getElementById('emblem');
+  let a=0;
+  function tick(){ a+=0.6; emblem.style.transform = `rotateY(${a}deg) translateZ(0px)`; requestAnimationFrame(tick); }
+  tick();
+})();
+
+/* --------------------------
+   Part 4: booking modal / whatsapp
+   -------------------------- */
+(function(){
+  const modal = document.getElementById('modal');
+  const bookBtn = document.getElementById('bookBtn');
+  const modalClose = document.getElementById('modalClose');
+  const modalSend = document.getElementById('modalSend');
+
+  bookBtn.addEventListener('click', ()=> modal.classList.add('open'));
+  modalClose.addEventListener('click', ()=> modal.classList.remove('open'));
+
+  modalSend.addEventListener('click', ()=>{
+    const name = document.getElementById('inputName').value || 'مريض';
+    const phone = document.getElementById('inputPhone').value || '';
+    const service = document.getElementById('inputService').value || '';
+    const note = document.getElementById('inputNote').value || '';
+    // prepare whatsapp message
+    const text = encodeURIComponent(`حجز موعد\nالاسم: ${name}\nالهاتف: ${phone}\nالخدمة: ${service}\nملاحظات: ${note}`);
+    const wa = `https://wa.me/201000000000?text=${text}`; // replace with real number
+    window.open(wa,'_blank');
+    modal.classList.remove('open');
+  });
+
+  // print button
+  document.getElementById('printBtn').addEventListener('click', ()=> window.print());
+
+  // vCard download
+  document.getElementById('downloadVCard').addEventListener('click', ()=>{
+    const vcard = [
+      'BEGIN:VCARD',
+      'VERSION:3.0',
+      'FN:د. محمد سعيد',
+      'ORG:عيادة مركز الشفاء',
+      'TEL;TYPE=WORK,VOICE:+201000000000',
+      'EMAIL;TYPE=PREF:doctor@example.com',
+      'ADR;TYPE=WORK:;;شارع النيل 123;القاهرة;;;',
+      'END:VCARD'
+    ].join('\\n');
+    const blob = new Blob([vcard], {type:'text/vcard;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'Dr_Mohamed_Saeed.vcf'; document.body.appendChild(a); a.click();
+    URL.revokeObjectURL(url); a.remove();
+  });
+})();
+
+/* --------------------------
+   Accessibility: close modal on esc
+   -------------------------- */
+addEventListener('keydown', e=>{
+  if(e.key === 'Escape') document.getElementById('modal').classList.remove('open');
+});
+</script>
+
+</body>
+</html>
